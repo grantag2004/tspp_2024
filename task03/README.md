@@ -4,3 +4,5 @@
 
 Результаты работы программы представлены на изображении.
 
+![Results](https://github.com/grantag2004/tspp_2024/blob/task03/task03/Результаты.jpg)
+
