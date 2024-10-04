@@ -69,22 +69,6 @@ public:
         std::cout << "Vertex with the largest total weight of incident edges " << max_vertex << ", total weight: " << max_sum << std::endl;
     }
 
-    double calculate_weight(int vertex)
-    {
-        if (calculated_weights.find(vertex) != calculated_weights.end())
-            return calculated_weights[vertex];
-        
-        double answer = 0.0;
-        for (int i = row_ptr[vertex];i < row_ptr[vertex + 1];++i) 
-        {
-            int neighbor = col_ids[i];
-            answer += vals[i] * (row_ptr[neighbor + 1] - row_ptr[neighbor]); 
-        }
-
-        calculated_weights[vertex] = answer;
-        return answer;
-    }
-
     void find_max_rank_vertex()
     {
         double max_rank = -std::numeric_limits<double>::min();
@@ -97,7 +81,13 @@ public:
             {
                 int neighbor = col_ids[j];
                 double w_edge = vals[j];
-                double neighbor_weight = calculate_weight(neighbor);
+
+                double neighbor_weight = 0.0;
+                for (int k = row_ptr[neighbor];k < row_ptr[neighbor + 1];++k) 
+                {
+                    int n = col_ids[k];
+                    neighbor_weight += vals[k] * (row_ptr[n + 1] - row_ptr[n]); 
+                }
                 curr_rank += w_edge * neighbor_weight;
             }
             if (curr_rank > max_rank) {
@@ -105,7 +95,6 @@ public:
                 max_vertex = i;
             }
         }  
-
         std::cout << "Vertex with max rank " << max_vertex << ", Rank: " << max_rank << std::endl;
     }
 };
@@ -144,25 +133,36 @@ int main () {
 
         int flag3 = PAPI_event_name_to_code("PERF_COUNT_HW_CPU_CYCLES", &event_code);
         if (!flag3)
-            PAPI_add_event(&event, event_code); 
+            PAPI_add_event(event, event_code); 
 
         long long values[3];
 
         PAPI_start(event); 
         a.find_vertex_max();
+        PAPI_stop(event, values); 
+        if (!flag1)
+            std::cout << "Test " << n_test << " algo1 L1 cache misses: " << values[0] << std::endl;
+        if (!flag2)
+            std::cout << "Test " << n_test << " algo1 L2 cache misses: " << values[1] << std::endl;
+        if (!flag3)
+            std::cout << "Test " << n_test << " algo1 PERF_COUNT_HW_CPU_CYCLES " << values[2] << std::endl;
+
+        values[0] = 0;
+        values[1] = 0;
+        values[2] = 0;
+        PAPI_start(event); 
         a.find_max_rank_vertex();
         PAPI_stop(event, values); 
+        if (!flag1)
+             std::cout << "Test " << n_test << " algo2 L1 cache misses: " << values[0] << std::endl;
+        if (!flag2)
+            std::cout << "Test " << n_test << " algo2 L2 cache misses: " << values[1] << std::endl;
+        if (!flag3)
+            std::cout << "Test " << n_test << " algo2 PERF_COUNT_HW_CPU_CYCLES " << values[2] << std::endl;
 
         PAPI_cleanup_eventset(event);
         PAPI_destroy_eventset(&event);
         PAPI_destroy_eventset(&event);
         PAPI_shutdown();
-
-        if (!flag1)
-            std::cout << "Test " << n_test << " L1 cache misses: " << values[0] << std::endl;
-        if (!flag2)
-            std::cout << "Test " << n_test << " L2 cache misses: " << values[1] << std::endl;
-        if (!flag3)
-            std::cout << "Test " << n_test << " PERF_COUNT_HW_CPU_CYCLES " << values[2] << std::endl;
     }
 }
