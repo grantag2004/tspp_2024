@@ -1,14 +1,14 @@
 #include <iostream>
 #include <omp.h>
 #include <random>
+#include <cstdlib>
 
 #define MAX_STEPS 10000
 
-int main() 
+int main(int argc, char* argv[]) 
 {
-    int a, b, x, N, P, steps, position;
-    double p;
-    std::cout << "Enter a and b" << std::endl;
+    int steps, position;
+    /*std::cout << "Enter a and b" << std::endl;
     std::cin >> a >> b;
     std::cout << "Enter p" << std::endl;
     std::cin >> p;
@@ -18,6 +18,18 @@ int main()
     std::cin >> N;
     std::cout << "Enter P" << std::endl;
     std::cin >> P;
+    */
+
+    if (argc != 7) 
+        return 1;
+
+    int a = std::atoi(argv[1]);
+    int b = std::atoi(argv[2]);
+    double p = std::atof(argv[3]);
+    int x = std::atoi(argv[4]);
+    int N = std::atoi(argv[5]);
+    int P = std::atoi(argv[6]);
+
 
     int get_b = 0;         
     double total_lifetime = 0;
