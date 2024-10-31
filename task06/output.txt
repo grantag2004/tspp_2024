@@ -1,0 +1,66 @@
+Запуск при N = 100000000
+Qsort time: 17.035 seconds
+1 pthreads
+Parallel merge sort time: 19.1178 seconds
+Parallel time / std::sort time: 112.226% of std::sort
+The parallel merge sort matches qsort.
+2 pthreads
+Parallel merge sort time: 11.2088 seconds
+Parallel time / std::sort time: 65.7985% of std::sort
+The parallel merge sort matches qsort.
+3 pthreads
+Parallel merge sort time: 6.87324 seconds
+Parallel time / std::sort time: 40.3478% of std::sort
+The parallel merge sort matches qsort.
+4 pthreads
+Parallel merge sort time: 5.16196 seconds
+Parallel time / std::sort time: 30.3021% of std::sort
+The parallel merge sort matches qsort.
+5 pthreads
+Parallel merge sort time: 4.47874 seconds
+Parallel time / std::sort time: 26.2914% of std::sort
+The parallel merge sort matches qsort.
+6 pthreads
+Parallel merge sort time: 4.45119 seconds
+Parallel time / std::sort time: 26.1297% of std::sort
+The parallel merge sort matches qsort.
+7 pthreads
+Parallel merge sort time: 4.11927 seconds
+Parallel time / std::sort time: 24.1812% of std::sort
+The parallel merge sort matches qsort.
+8 pthreads
+Parallel merge sort time: 4.05589 seconds
+Parallel time / std::sort time: 23.8092% of std::sort
+The parallel merge sort matches qsort.
+9 pthreads
+Parallel merge sort time: 3.67259 seconds
+Parallel time / std::sort time: 21.5591% of std::sort
+The parallel merge sort matches qsort.
+10 pthreads
+Parallel merge sort time: 3.11033 seconds
+Parallel time / std::sort time: 18.2585% of std::sort
+The parallel merge sort matches qsort.
+11 pthreads
+Parallel merge sort time: 3.56383 seconds
+Parallel time / std::sort time: 20.9207% of std::sort
+The parallel merge sort matches qsort.
+12 pthreads
+Parallel merge sort time: 3.84294 seconds
+Parallel time / std::sort time: 22.5591% of std::sort
+The parallel merge sort matches qsort.
+13 pthreads
+Parallel merge sort time: 3.2908 seconds
+Parallel time / std::sort time: 19.3179% of std::sort
+The parallel merge sort matches qsort.
+14 pthreads
+Parallel merge sort time: 2.8619 seconds
+Parallel time / std::sort time: 16.8001% of std::sort
+The parallel merge sort matches qsort.
+15 pthreads
+Parallel merge sort time: 3.38021 seconds
+Parallel time / std::sort time: 19.8428% of std::sort
+The parallel merge sort matches qsort.
+16 pthreads
+Parallel merge sort time: 2.77889 seconds
+Parallel time / std::sort time: 16.3129% of std::sort
+The parallel merge sort matches qsort.
