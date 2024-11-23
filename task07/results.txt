@@ -1,0 +1,59 @@
+1
+mpiP: 
+mpiP: mpiP V3.5.0 (Build Nov 10 2024/21:44:45)
+mpiP: 
+Norm: 4.10056
+Execution time: 63.2158 seconds
+mpiP: 
+mpiP: Storing mpiP output in [./task07.1.21137.1.mpiP].
+mpiP: 
+
+2
+mpiP: 
+mpiP: mpiP V3.5.0 (Build Nov 10 2024/21:44:45)
+mpiP: 
+Norm: 4.84796
+Execution time: 32.606 seconds
+mpiP: 
+mpiP: Storing mpiP output in [./task07.2.7177.1.mpiP].
+mpiP: 
+
+4
+mpiP: 
+mpiP: mpiP V3.5.0 (Build Nov 10 2024/21:44:45)
+mpiP: 
+Norm: 5.72866
+Execution time: 15.876 seconds
+mpiP: 
+mpiP: Storing mpiP output in [./task07.4.21978.1.mpiP].
+mpiP: 
+
+8
+mpiP: 
+mpiP: mpiP V3.5.0 (Build Nov 10 2024/21:44:45)
+mpiP: 
+Norm: 6.65499
+Execution time: 9.62968 seconds
+mpiP: 
+mpiP: Storing mpiP output in [./task07.8.7772.1.mpiP].
+mpiP: 
+
+16
+mpiP: 
+mpiP: mpiP V3.5.0 (Build Nov 10 2024/21:44:45)
+mpiP: 
+Norm: 7.75339
+Execution time: 4.37121 seconds
+mpiP: 
+mpiP: Storing mpiP output in [./task07.16.20731.1.mpiP].
+mpiP: 
+
+32
+mpiP: 
+mpiP: mpiP V3.5.0 (Build Nov 10 2024/21:44:45)
+mpiP: 
+Norm: 9.11603
+Execution time: 2.56795 seconds
+mpiP: 
+mpiP: Storing mpiP output in [./task07.32.105424.1.mpiP].
+mpiP: 
