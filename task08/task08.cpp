@@ -9,13 +9,12 @@
 #define GRID_SIZE 1024
 #define MAX_ITERATIONS 1000
 
-void initialize_random(std::vector<std::vector<int> > &grid, int grid_size, double alive_probability) 
-{
-    std::mt19937 rng(std::random_device{}());
+void initialize_random(std::vector<std::vector<int>> &grid, int rows, int cols, double alive_probability, int rank) {
+    std::mt19937 rng(std::random_device{}() + rank); 
     std::uniform_real_distribution<double> dist(0.0, 1.0);
 
-    for (int i = 0; i < grid_size; ++i)
-        for (int j = 0; j < grid_size; ++j)
+    for (int i = 0; i < rows; ++i)
+        for (int j = 0; j < cols; ++j)
             grid[i][j] = (dist(rng) < alive_probability) ? 1 : 0;
 }
 
@@ -74,42 +73,14 @@ int main(int argc, char **argv)
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-    std::vector<std::vector<int> > global_grid;
-    std::vector<int> tape_grid;
-
-    if (rank == 0) 
-    {
-        global_grid.resize(GRID_SIZE, std::vector<int>(GRID_SIZE));
-        double alive_probability = 0.3;
-        initialize_random(global_grid, GRID_SIZE, alive_probability);
-
-        tape_grid.resize(GRID_SIZE * GRID_SIZE);
-        for (int i = 0; i < GRID_SIZE; ++i) 
-            for (int j = 0; j < GRID_SIZE; ++j) 
-                tape_grid[i * GRID_SIZE + j] = global_grid[i][j];
-    } 
-    else 
-        tape_grid.resize(GRID_SIZE * GRID_SIZE);
-
-    MPI_Bcast(tape_grid.data(), GRID_SIZE * GRID_SIZE, MPI_INT, 0, MPI_COMM_WORLD);
-
-    std::vector<std::vector<int> > local_grid;
     int rows = GRID_SIZE / size;
     int remaining_rows = GRID_SIZE % size;
+    int local_rows = rows + (rank == size - 1 ? remaining_rows : 0);
 
-    if (rank == size - 1) 
-        rows += remaining_rows;  
+    std::vector<std::vector<int>> local_grid(local_rows + 2, std::vector<int>(GRID_SIZE, 0));
+    double alive_probability = 0.3;
+    initialize_random(local_grid, local_rows, GRID_SIZE, alive_probability, rank);
 
-    local_grid.resize(rows + 2, std::vector<int>(GRID_SIZE, 0));
-
-    for (int i = 0; i < rows; ++i) 
-        for (int j = 0; j < GRID_SIZE; ++j) 
-            local_grid[i + 1][j] = tape_grid[(rank * rows + i) * GRID_SIZE + j];
-
-    if (rank == size - 1 && remaining_rows > 0) 
-        for (int i = 0; i < remaining_rows; ++i) 
-            for (int j = 0; j < GRID_SIZE; ++j) 
-                local_grid[rows + 1 + i][j] = tape_grid[(rank * rows + i + rows) * GRID_SIZE + j];
 
     int iteration = 0;
     int global_alive = 0;
