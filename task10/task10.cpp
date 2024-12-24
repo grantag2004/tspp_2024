@@ -7,7 +7,7 @@
 #include <algorithm>
 
 #define GRID_SIZE 64
-#define ITERATIONS 10
+#define ITERATIONS 50
 
 void generate_random(std::vector<double>& matrix, int rank) 
 {
@@ -19,12 +19,10 @@ void generate_random(std::vector<double>& matrix, int rank)
         element = distribution(generator);
 }
 
-
 inline int idx(int x, int y, int z, int xx, int yy) 
 {
     return z * xx * yy + y * xx + x;
 }
-
 
 void update_jacobi(const std::vector<double>& current, std::vector<double>& next, int xx, int yy, int zz)
 {
@@ -95,27 +93,29 @@ int main(int argc, char** argv)
     MPI_Datatype layer_types[3] = {type_X, type_Y, type_Z};
 
     auto get_neighbor = [&](int dim, int direction) 
-	{
+    {
         int rank_source, rank_dest;
         MPI_Cart_shift(cart_comm, dim, 1, &rank_source, &rank_dest);
         if (direction == -1) return rank_source; 
         else if (direction == +1) return rank_dest;
+        else return MPI_PROC_NULL;
     };
 
-    //Определение смещений для отправки/приёма
+    const int TAG_X = 0;
+    const int TAG_Y = 1;
+    const int TAG_Z = 2;
+
     int offset_send_x_left = idx(1, 0, 0, xx, yy);  
     int offset_recv_x_left = idx(0, 0, 0, xx, yy);  
 
     int offset_send_x_right = idx(xx - 2, 0, 0, xx, yy);  
     int offset_recv_x_right = idx(xx - 1, 0, 0, xx, yy); 
 
-
     int offset_send_y_down = idx(0, 1, 0, xx, yy);  
     int offset_recv_y_down = idx(0, 0, 0, xx, yy); 
 
     int offset_send_y_up = idx(0, yy - 2, 0, xx, yy);  
     int offset_recv_y_up = idx(0, yy - 1, 0, xx, yy);  
-
 
     int offset_send_z_front = idx(0, 0, 1, xx, yy);  
     int offset_recv_z_front = idx(0, 0, 0, xx, yy);  
@@ -137,18 +137,18 @@ int main(int argc, char** argv)
             int right_rank = get_neighbor(0, +1);
 
             if (left_rank != MPI_PROC_NULL) 
-			{
+            {
                 MPI_Isend(&current_grid[offset_send_x_left], 1, layer_types[0],
-                          left_rank,  101, cart_comm, &req[rcount++]);
+                          left_rank, TAG_X, cart_comm, &req[rcount++]);
                 MPI_Irecv(&current_grid[offset_recv_x_left], 1, layer_types[0],
-                          left_rank,  102, cart_comm, &req[rcount++]);
+                          left_rank, TAG_X, cart_comm, &req[rcount++]);
             }
             if (right_rank != MPI_PROC_NULL) 
-			{
+            {
                 MPI_Isend(&current_grid[offset_send_x_right], 1, layer_types[0],
-                          right_rank, 201, cart_comm, &req[rcount++]);
+                          right_rank, TAG_X, cart_comm, &req[rcount++]);
                 MPI_Irecv(&current_grid[offset_recv_x_right], 1, layer_types[0],
-                          right_rank, 202, cart_comm, &req[rcount++]);
+                          right_rank, TAG_X, cart_comm, &req[rcount++]);
             }
         }
 
@@ -157,18 +157,18 @@ int main(int argc, char** argv)
             int up_rank   = get_neighbor(1, +1);
 
             if (down_rank != MPI_PROC_NULL) 
-			{
+            {
                 MPI_Isend(&current_grid[offset_send_y_down], 1, layer_types[1],
-                          down_rank,  111, cart_comm, &req[rcount++]);
+                          down_rank, TAG_Y, cart_comm, &req[rcount++]);
                 MPI_Irecv(&current_grid[offset_recv_y_down], 1, layer_types[1],
-                          down_rank,  112, cart_comm, &req[rcount++]);
+                          down_rank, TAG_Y, cart_comm, &req[rcount++]);
             }
             if (up_rank != MPI_PROC_NULL) 
-			{
+            {
                 MPI_Isend(&current_grid[offset_send_y_up], 1, layer_types[1],
-                          up_rank,    211, cart_comm, &req[rcount++]);
+                          up_rank, TAG_Y, cart_comm, &req[rcount++]);
                 MPI_Irecv(&current_grid[offset_recv_y_up], 1, layer_types[1],
-                          up_rank,    212, cart_comm, &req[rcount++]);
+                          up_rank, TAG_Y, cart_comm, &req[rcount++]);
             }
         }
 
@@ -177,18 +177,18 @@ int main(int argc, char** argv)
             int back_rank  = get_neighbor(2, +1);
 
             if (front_rank != MPI_PROC_NULL) 
-			{
+            {
                 MPI_Isend(&current_grid[offset_send_z_front], 1, layer_types[2],
-                          front_rank,  121, cart_comm, &req[rcount++]);
+                          front_rank, TAG_Z, cart_comm, &req[rcount++]);
                 MPI_Irecv(&current_grid[offset_recv_z_front], 1, layer_types[2],
-                          front_rank,  122, cart_comm, &req[rcount++]);
+                          front_rank, TAG_Z, cart_comm, &req[rcount++]);
             }
             if (back_rank != MPI_PROC_NULL) 
-			{
+            {
                 MPI_Isend(&current_grid[offset_send_z_back], 1, layer_types[2],
-                          back_rank,   221, cart_comm, &req[rcount++]);
+                          back_rank, TAG_Z, cart_comm, &req[rcount++]);
                 MPI_Irecv(&current_grid[offset_recv_z_back], 1, layer_types[2],
-                          back_rank,   222, cart_comm, &req[rcount++]);
+                          back_rank, TAG_Z, cart_comm, &req[rcount++]);
             }
         }
 
@@ -203,15 +203,14 @@ int main(int argc, char** argv)
     for (size_t i = 0; i < current_grid.size(); ++i) 
         local_norm += std::fabs(current_grid[i] - next_grid[i]);
 
-    local_norm /= (double)current_grid.size();
-
+    local_norm /= static_cast<double>(current_grid.size());
 
     double global_norm = 0.0;
     MPI_Reduce(&local_norm, &global_norm, 1, MPI_DOUBLE, MPI_SUM, 0, cart_comm);
     global_norm /= size;
 
     if (cart_rank == 0) 
-	{
+    {
         std::cout << "Общая усреднённая норма = " << global_norm << std::endl;
         std::cout << "Время выполнения: " << (t_end - t_start) << " секунд" << std::endl;
     }
